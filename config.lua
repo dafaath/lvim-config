@@ -33,7 +33,6 @@ nmap <c-c> "+y
 vmap <c-c> "+y
 nmap <c-v> "+p
 inoremap <c-v> <c-r>+
-tnoremap <c-v> <c-r>+
 cnoremap <c-v> <c-r>+
 " use <c-r> to insert original character without triggering things like auto-pairs
 inoremap <c-r> <c-v>
@@ -42,6 +41,13 @@ tnoremap <c-r> <c-v>
 
 
 lvim.keys.term_mode["<C-l>"] = "clear<CR>"
+lvim.keys.term_mode["<C-v>"] = "<C-\\><C-N>pi"
+
+lvim.builtin.terminal.execs[#lvim.builtin.terminal.execs + 1] = { vim.o.shell, "<M-1>", "Horizontal Terminal",
+  "horizontal", 10 }
+lvim.builtin.terminal.execs[#lvim.builtin.terminal.execs + 1] = { vim.o.shell, "<M-2>", "Vertical Terminal", "float",
+  60 }
+lvim.builtin.terminal.execs[#lvim.builtin.terminal.execs + 1] = { vim.o.shell, "<M-3>", "Float Terminal", "float", nil }
 
 -- unmap a default keymapping
 -- vim.keymap.del("n", "<C-Up>")
