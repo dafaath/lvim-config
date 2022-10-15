@@ -8,8 +8,7 @@ an executable
 ]]
 -- THESE ARE EXAMPLE CONFIGS FEEL FREE TO CHANGE TO WHATEVER YOU WANT
 
--- general
-lvim.log.level = "warn"
+-- general lvim.log.level = "warn"
 lvim.format_on_save = true
 lvim.colorscheme = "tokyonight-storm"
 -- to disable icons and use a minimalist setup, uncomment the following
@@ -199,6 +198,25 @@ lvim.plugins = {
   {
     "fatih/vim-go"
   },
+  {
+    "phaazon/hop.nvim",
+    event = "BufRead",
+    config = function()
+      require("hop").setup()
+      vim.api.nvim_set_keymap("n", "s", ":HopChar2<cr>", { silent = true })
+      vim.api.nvim_set_keymap("n", "S", ":HopWord<cr>", { silent = true })
+    end,
+  },
+  {
+    "nacro90/numb.nvim",
+    event = "BufRead",
+    config = function()
+      require("numb").setup {
+        show_numbers = true, -- Enable 'number' for the window while peeking
+        show_cursorline = true, -- Enable 'cursorline' for the window while peeking
+      }
+    end
+  },
 }
 
 -- Autocommands (https://neovim.io/doc/user/autocmd.html)
@@ -222,4 +240,4 @@ lvim.autocommands = {
 --   end,
 -- })
 
-vim.o.guifont = "Fira Code:h11"
+vim.o.guifont = "Fira Code:h10"
