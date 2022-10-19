@@ -1,6 +1,5 @@
 --[[
 lvim is the global options object
-
 Linters should be
 filled in as strings with either
 a global executable or a path to
@@ -186,6 +185,13 @@ linters.setup {
 
 -- Additional Plugins
 lvim.plugins = {
+  {
+    "windwp/nvim-spectre",
+    event = "BufRead",
+    config = function()
+      require("spectre").setup()
+    end,
+  },
   { "folke/tokyonight.nvim" },
   {
     "folke/trouble.nvim",
