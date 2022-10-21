@@ -71,9 +71,12 @@ lvim.builtin.telescope.defaults.mappings = {
 }
 
 -- Use which-key to add extra bindings with the leader-key prefix
+lvim.builtin.which_key.vmappings["s"] = "<esc><cmd>lua require('spectre').open_visual()<CR>"
 lvim.builtin.which_key.mappings["P"] = { "<cmd>Telescope projects<CR>", "Projects" }
 lvim.builtin.which_key.mappings["q"] = { nil }
 lvim.builtin.which_key.mappings["Q"] = { "<cmd>lua require('lvim.utils.functions').smart_quit()<CR>", "Quit" }
+lvim.builtin.which_key.mappings["s"]["S"] = { "<cmd>lua require('spectre').open()<CR>", "Search Workspace" }
+lvim.builtin.which_key.mappings["s"]["s"] = { "<cmd>lua require('spectre').open_file_search()<cr>", "Search File" }
 lvim.builtin.which_key.mappings["t"] = {
   name = "+Trouble",
   r = { "<cmd>Trouble lsp_references<cr>", "References" },
@@ -108,6 +111,7 @@ lvim.builtin.treesitter.ensure_installed = {
   "rust",
   "java",
   "yaml",
+  "fish",
 }
 
 lvim.builtin.treesitter.highlight.enabled = true
@@ -133,9 +137,45 @@ lvim.builtin.treesitter.highlight.enabled = true
 
 -- ---configure a server manually. !!Requires `:LvimCacheReset` to take effect!!
 -- ---see the full default list `:lua print(vim.inspect(lvim.lsp.automatic_configuration.skipped_servers))`
-vim.list_extend(lvim.lsp.automatic_configuration.skipped_servers, { "clangd" })
--- local opts = {} -- check the lspconfig documentation for a list of all possible options
--- require("lvim.lsp.manager").setup("pyright", opts)
+vim.list_extend(lvim.lsp.automatic_configuration.skipped_servers, { "clangd", "pyright" })
+local configs = require('lspconfig/configs')
+local util = require('lspconfig/util')
+
+local path = util.path
+
+local function get_python_path(workspace)
+  -- Use activated virtualenv.
+  if vim.env.VIRTUAL_ENV then
+    return path.join(vim.env.VIRTUAL_ENV, 'bin', 'python')
+  end
+
+  -- Find and use virtualenv in workspace directory.
+  for _, pattern in ipairs({ '*', '.*' }) do
+    local match = vim.fn.glob(path.join(workspace, pattern, 'pyvenv.cfg'))
+    if match ~= '' then
+      return path.join(path.dirname(match), 'bin', 'python')
+    end
+  end
+
+
+  local handle = io.popen("which python")
+  if handle ~= nil
+  then
+    local result = handle:read("*a")
+    handle:close()
+    return result
+  end
+  -- Fallback to system Python.
+  return exepath('python3') or exepath('python') or 'python'
+end
+
+local opts = {
+
+  before_init = function(_, config)
+    config.settings.python.pythonPath = get_python_path(config.root_dir)
+  end
+} -- check the lspconfig documentation for a list of all possible options
+require("lvim.lsp.manager").setup("pyright", opts)
 
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities.offsetEncoding = { "utf-16" }
